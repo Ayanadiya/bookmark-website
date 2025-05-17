@@ -1,4 +1,4 @@
-import { useState,useContext } from "react"
+import { useState,useContext, useEffect } from "react"
 import Modal from "../UI/Modal";
 import Button from "../UI/Button";
 import BookmarkContext from "../../store/Bookmark-Context";
@@ -6,16 +6,23 @@ import BookmarkContext from "../../store/Bookmark-Context";
 
 const BookmarkForm=props=>{
     const bookmarkctx=useContext(BookmarkContext)
-    const {isEditing}=props
+    const {isEditing, existingData}=props
     const [sitename,setSitename]=useState("");
     const [url, setUrl]=useState("");
     const sitenameChangeHandler=(event)=>setSitename(event.target.value);
     const urlChangeHandler=(event)=> setUrl(event.target.value);
 
+    useEffect(() => {
+    if (isEditing && existingData) {
+      setSitename(existingData.sitename);
+      setUrl(existingData.url);
+    }
+  }, [isEditing, existingData]);
+
     const submitHandler=(event)=>{
         event.preventDefault();
         const bookmark={
-            id:Math.random().toString(),
+            id:existingData.id||Math.random().toString(),
             sitename:sitename,
             url:url
         }

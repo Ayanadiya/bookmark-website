@@ -15,8 +15,13 @@ const bookmarkReducer=(state,action)=>{
     }
     if(action.type==="edit")
     {
-
-    }
+         return {
+        ...state,
+        bookmarks: state.bookmarks.map((bookmark) =>
+          bookmark.id === action.item.id ? action.item : bookmark
+        ),
+       }
+    }   
     if(action.type==="delete")
     {
         return {
