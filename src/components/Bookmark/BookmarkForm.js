@@ -21,18 +21,21 @@ const BookmarkForm=props=>{
 
     const submitHandler=(event)=>{
         event.preventDefault();
-        const bookmark={
-            id:existingData.id||Math.random().toString(),
-            sitename:sitename,
-            url:url
-        }
         if(isEditing)
         {
-           bookmarkctx.editBookmarks();
+           bookmarkctx.editBookmarks({
+            _id:existingData._id,
+            sitename:sitename,
+            url:url
+        });
         }
         else{
-            bookmarkctx.addBookmarks(bookmark);
+            bookmarkctx.addBookmarks({
+            sitename:sitename,
+            url:url
+        });
         }
+        props.onClose();
     }
     return (
          <Modal onClick={props.onClose}>

@@ -1,13 +1,22 @@
-import { useReducer } from "react";
+import { useReducer, useEffect } from "react";
 import BookmarkContext from "./Bookmark-Context";
+
+const crudAPI="https://crudcrud.com/api/4ee50af2d5af4cd8bbe8b9b3636da181/bookmarks"
 
 const defaultBookmarkState={
     bookmarks:[]
 };
 
 const bookmarkReducer=(state,action)=>{
+    if(action.type==="set")
+    {
+        return{
+            bookmarks:action.items
+        }
+    }
     if(action.type==="add")
     {
+        console.log(state.bookmarks)
          return {
         ...state,
         bookmarks: [...state.bookmarks, action.item],
@@ -15,10 +24,12 @@ const bookmarkReducer=(state,action)=>{
     }
     if(action.type==="edit")
     {
+        console.log(state.bookmarks)
+        console.log(action.item)
          return {
         ...state,
         bookmarks: state.bookmarks.map((bookmark) =>
-          bookmark.id === action.item.id ? action.item : bookmark
+          bookmark._id === action.item._id ? action.item : bookmark
         ),
        }
     }   
@@ -26,7 +37,7 @@ const bookmarkReducer=(state,action)=>{
     {
         return {
             ...state,
-            boomarks:state.bookmarks.filter((item)=> item.id!==action.id)
+            bookmarks:state.bookmarks.filter((item)=> item._id!==action.id)
         }
     }
     return state
@@ -34,13 +45,41 @@ const bookmarkReducer=(state,action)=>{
 
 const BookmarkProvider=(props)=>{
     const [bookmarkState, dispatchBookmarkstate]=useReducer(bookmarkReducer,defaultBookmarkState);
-    const addBookmarkHandler= item=>{
-        dispatchBookmarkstate({type:"add", item:item})
+
+    useEffect(() => {
+    const fetchBookmarks = async () => {
+      const res = await fetch(crudAPI);
+      const data = await res.json();
+      dispatchBookmarkstate({ type: "set", items: data });
     };
-    const editBookmarkHandler=id=>{
-        dispatchBookmarkstate({type:"edit", id:id})
+    fetchBookmarks();
+    }, []);
+    const addBookmarkHandler= async (item)=>{
+        console.log(item);
+        const res = await fetch(crudAPI, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(item),
+    });
+        const newItem = await res.json();
+        console.log(newItem);
+        dispatchBookmarkstate({type:"add", item:newItem})
     };
-    const deleteBookmarkHandler=id=>{
+    const editBookmarkHandler=async (item)=>{
+        console.log(item);
+        const{_id, ...rest}=item;
+        const res= await fetch(`${crudAPI}/${_id}`,{
+            method:"PUT",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify(rest),
+        })
+
+        dispatchBookmarkstate({type:"edit", item:item})
+    };
+    const deleteBookmarkHandler=async(id)=>{
+        await fetch(`${crudAPI}/${id}`,{
+            method:"DELETE",
+        })
         dispatchBookmarkstate({type:"delete", id:id})
     }
     const value={

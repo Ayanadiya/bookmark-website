@@ -1,17 +1,18 @@
 import { useContext } from "react";
 import BookmarkContext from "../../store/Bookmark-Context";
+import classes from "./BookmarkList.module.css"
 const BookmarkList = ({ onEdit }) => {
   const Bookmarkctx = useContext(BookmarkContext);
 
   return (
-    <ul>
+    <ul className={classes.ul}>
       {Bookmarkctx.bookmarks.map((item) => (
-        <li key={item.id}>
-          <a href={item.url} target="_blank" rel="noreferrer">
-            {item.sitename}
+        <li className={classes.li} key={item._id}>
+           {item.sitename}
+          <a href={item.url} target="_self" rel="noreferrer">
+           Visit
           </a>{" "}
-          - {item.url}
-          <button onClick={() => Bookmarkctx.deleteBookmarks(item.id)}>Delete</button>
+          <button onClick={() => Bookmarkctx.deleteBookmarks(item._id)}>Delete</button>
           <button onClick={() => onEdit(item)}>Edit</button>
         </li>
       ))}
